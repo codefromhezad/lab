@@ -1,0 +1,106 @@
+<script src="sylvester.js"></script>
+<script src="lib.js"></script>
+
+<canvas id="canvas" width="1000", height="500">
+	Random Canvas
+</canvas>
+
+<script type="text/javascript">
+	
+	var CELL_SIZE = 40,
+		CELL_OFFSET = 20;
+
+	var LINES_DENSITY = 1/2,
+		MAX_SIDES = 3,
+		GLITCH_DENSITY = 1/5,
+		FILLER_DENSITY = 3/4;
+
+	var renderer = new CanvasRenderer('canvas');
+	var x = y = sided = 0;
+
+	while(x < renderer.get('width')) {
+		y = 0;
+		while(y < renderer.get('height')) {
+
+			/* Cell filling */
+			var filler_base_color = "0, 0, 0"
+			renderer.set('context2d.strokeStyle', "'rgba("+filler_base_color+", 1)'");
+			renderer.set('context2d.lineWidth', 1);
+
+			if( Math.random() < FILLER_DENSITY ) {
+				var in_gap = Math.floor(2 + Math.random()*CELL_SIZE / 16) * 2
+				var random_value = Math.random()
+				var gradient_randomizer = Math.random();
+
+				for(var i = 0; i < CELL_SIZE; i+=in_gap) {
+					var nx1 = nx2 = ny1 = ny2 = 0;
+					if( random_value < 0.25 ) {
+						nx1 = 0; nx2 = i;
+						ny1 = i; ny2 = i;
+					} else if( random_value < 0.5) {
+						nx1 = i; nx2 = 0;
+						ny1 = 0; ny2 = i;
+					} else if( random_value < 0.75) {
+						nx1 = i; nx2 = i;
+						ny1 = i; ny2 = 0;
+					} else {
+						nx1 = 0; nx2 = i;
+						ny1 = i; ny2 = 0;
+					}
+					renderer.line(x + nx1, y + ny1, x + nx2, y + ny2)
+
+					var gradient_direction = (i/CELL_SIZE);
+					if( gradient_randomizer < 0.5) {
+						gradient_direction = 1 - gradient_direction;
+					}
+					renderer.set('context2d.strokeStyle', "'rgba("+filler_base_color+", "+gradient_direction+")'");
+				}
+			}
+
+			/* Grid stroking */		
+			renderer.set('context2d.strokeStyle', "'#000'");
+
+			sided = 0;
+			if( Math.random() < LINES_DENSITY ) {
+				sided ++
+				renderer.line(x, y, x, y + CELL_SIZE)
+
+				if( Math.random() < GLITCH_DENSITY ) {
+					var yoff = parseInt(Math.random()*4)*(CELL_SIZE + CELL_OFFSET);
+					renderer.line(x, y, x, y + yoff)
+				}
+			}
+			if( Math.random() < LINES_DENSITY && sided < MAX_SIDES) {
+				sided ++
+				renderer.line(x, y, x + CELL_SIZE, y)
+
+				if( Math.random() < GLITCH_DENSITY ) {
+					var xoff = parseInt(Math.random()*4)*(CELL_SIZE + CELL_OFFSET);
+					renderer.line(x, y, x + xoff, y)
+				}
+			}
+			if( Math.random() < LINES_DENSITY && sided < MAX_SIDES) {
+				sided ++
+				renderer.line(x, y + CELL_SIZE, x + CELL_SIZE, y + CELL_SIZE)
+
+				if( Math.random() < GLITCH_DENSITY ) {
+					var xoff = parseInt(Math.random()*4)*(CELL_SIZE + CELL_OFFSET);
+					renderer.line(x, y + CELL_SIZE, x + xoff, y + CELL_SIZE)
+				}
+			}
+			if( Math.random() < LINES_DENSITY && sided < MAX_SIDES) {
+				sided ++
+				renderer.line(x + CELL_SIZE, y, x + CELL_SIZE, y + CELL_SIZE)
+
+				if( Math.random() < GLITCH_DENSITY ) {
+					var yoff = parseInt(Math.random()*4)*(CELL_SIZE + CELL_OFFSET);
+					renderer.line(x + CELL_SIZE, y, x + CELL_SIZE, y + yoff)
+				}
+			}
+
+			y += CELL_SIZE + CELL_OFFSET
+		}
+		x += CELL_SIZE + CELL_OFFSET
+	}
+
+</script>
